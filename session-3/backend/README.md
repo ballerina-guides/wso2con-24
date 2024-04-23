@@ -1,1 +1,8 @@
 # Backend implementation for Reviewed!
+
+A backend implementation for Reviewed!, a platform to review places.
+
+Reviewed! let's you 
+- retrieve all places for which reviews can be done, with city and country details
+- retrieve details of a specific place, including city, country, timezone, city population, and all the current reviews for a place
+- retrieve all the reviews by a particular author
