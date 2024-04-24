@@ -21,8 +21,8 @@ type AuthorData record {|
 
 final table<PlaceData> key (id) places = table [
     {id: 8000, name: "Tower Vista", city: "Colombo", country: "Sri Lanka", entryFee: 0},
-    {id: 8001, name: "TechTrail", city: "Miami", country: "United States", entryFee: 10}
-    // {id: 8002, name: "TechTrail", city: "Miami", country: "US", entryFee: 10} // place with invalid country value
+    {id: 8001, name: "TechTrail", city: "Miami", country: "United States", entryFee: 10},
+    {id: 8002, name: "TechTrail", city: "Miami", country: "US", entryFee: 10} // place with invalid country value
 ];
 
 final table<ReviewData> key (id) reviews = table [
