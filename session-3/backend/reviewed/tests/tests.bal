@@ -2,7 +2,10 @@ import ballerina/graphql;
 import ballerina/http;
 import ballerina/test;
 
-final graphql:Client cl = check new ("http://localhost:9000/reviewed");
+final graphql:Client cl = check new ("https://localhost:9000/reviewed",
+                                    secureSocket = {
+                                        cert: "../resources/certs/public.crt"
+                                    });
 
 @test:Mock {
     functionName: "getGeoClient"
@@ -21,6 +24,7 @@ function testRetrievingBasicPlaceData() returns error? {
     }`);
 
     BasicPlaceData[] expected = from PlaceData {id, name, city, country} in places 
+                                    order by name
                                     select {
                                         id,
                                         name,

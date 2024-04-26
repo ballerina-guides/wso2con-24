@@ -1,8 +1,16 @@
 import ballerina/graphql;
+import ballerina/graphql.dataloader;
 import ballerina/http;
 import ballerina/log;
 
 import xlibb/pubsub;
+
+const USER_ID = "userId";
+
+configurable boolean graphiqlEnabled = false;
+configurable boolean introspection = false;
+configurable int maxQueryDepth = 15;
+configurable string[] allowOrigins = ["http://localhost:3000"];
 
 final http:Client geoClient = check getGeoClient();
 
@@ -12,14 +20,34 @@ final pubsub:PubSub subscriptions = new;
 
 @graphql:ServiceConfig {
     graphiql: {
-        enabled: true
+        enabled: graphiqlEnabled
+    },
+    cacheConfig: {},
+    introspection,
+    maxQueryDepth,
+    contextInit,
+    cors: {
+        allowOrigins
     }
 }
-service /reviewed on new graphql:Listener(9000) {
+service /reviewed on new graphql:Listener(9000,
+        secureSocket = {
+            key: {
+                certFile: "../resources/certs/public.crt",
+                keyFile: "../resources/certs/private.key"
+            }
+        }) {
 
-    resource function get places() returns Place[] {
-        return from PlaceData placeData in places
-            select getPlace(placeData.id);
+    resource function get places(string? city = (), string? country = (), boolean sortByRating = false) returns Place[] {
+        Place[] filteredPlaces = getFilteredPlaces(city, country);
+        if sortByRating {
+            return from Place place in filteredPlaces
+                order by place.getRating() descending
+                select place;
+        }
+        return from Place place in filteredPlaces
+            order by place.getName()
+            select place;
     }
 
     resource function get place(@graphql:ID int placeId) returns Place {
@@ -41,6 +69,16 @@ service /reviewed on new graphql:Listener(9000) {
         return new (id);
     }
 
+    @graphql:ResourceConfig {
+        interceptors: new AuthInterceptor()
+    }
+    remote function addPlace(PlaceInput placeInput) returns Place|error {
+        int id = places.nextKey();
+        PlaceData placeData = {id, ...placeInput};
+        places.add(placeData);
+        return getPlace(id);
+    }
+
     resource function subscribe reviews(int placeId) returns stream<Review, error?>|error {
         stream<int, error?> reviews = check subscriptions.subscribe(placeId.toString());
         return from int reviewId in reviews select new (reviewId);
@@ -57,7 +95,7 @@ type CityData record {
     CityDataResultsItem[] results;
 };
 
-function getCityData(string city, string country) returns CityDataResultsItem|error {
+isolated function getCityData(string city, string country) returns CityDataResultsItem|error {
     CityData cityData = check geoClient->get(
         string `/geonames-all-cities-with-a-population-500/records?refine=name:${
             city}&refine=country:${country}`);
@@ -65,10 +103,20 @@ function getCityData(string city, string country) returns CityDataResultsItem|er
     if cityData.total_count == 0 {
         return error(string `cannot find data for ${city}, ${country}`);
     }
-    return cityData.results[0];
+
+    // Assume the entry with the highest population is the most correct one.
+    CityDataResultsItem[] results = cityData.results;
+    int[] populationValues = from CityDataResultsItem {population} in results select population;
+    int max = int:max(populationValues[0], ...populationValues.slice(1));
+    int indexOfEntryWithHighestPopulation = check populationValues.indexOf(max).ensureType();
+    return results[indexOfEntryWithHighestPopulation];
 }
 
 type Place distinct service object {
+    function getName() returns string;
+    
+    function getRating() returns decimal?;
+
     resource function get id() returns @graphql:ID int;
 
     resource function get name() returns string;
@@ -77,9 +125,9 @@ type Place distinct service object {
 
     resource function get country() returns string;
 
-    resource function get population() returns int|error?;
+    resource function get population(graphql:Context ctx) returns int|error?;
 
-    resource function get timezone() returns string|error?;
+    resource function get timezone(graphql:Context ctx) returns string|error?;
 
     resource function get reviews() returns Review[];
 
@@ -105,21 +153,42 @@ distinct service class PlaceWithFreeEntrance {
         self.country = placeData.country;
     }
 
+    function getName() returns string => self.name;
+    
+    function getRating() returns decimal? {
+        return from ReviewData {placeId, rating} in reviews
+            where placeId == self.id
+            collect avg(rating);
+    }
+
     resource function get id() returns @graphql:ID int => self.id;
 
-    resource function get name() returns string => self.name;
+    resource function get name() returns string => self.getName();
 
     resource function get city() returns string => self.city;
 
     resource function get country() returns string => self.country;
 
-    resource function get population() returns int|error? {
-        CityDataResultsItem cityData = check getCityData(self.city, self.country);
+    isolated function cityDataPreLoader(graphql:Context ctx) {
+        dataloader:DataLoader bookLoader = ctx.getDataLoader("cityDataLoader");
+        bookLoader.add([self.city, self.country]);
+    }
+
+    @graphql:ResourceConfig {
+        prefetchMethodName: "cityDataPreLoader"
+    }
+    resource function get population(graphql:Context ctx) returns int|error? {
+        dataloader:DataLoader cityDataLoader = ctx.getDataLoader("cityDataLoader");
+        CityDataResultsItem cityData = check cityDataLoader.get([self.city, self.country]);
         return cityData.population;
     }
 
-    resource function get timezone() returns string|error? {
-        CityDataResultsItem cityData = check getCityData(self.city, self.country);
+    @graphql:ResourceConfig {
+        prefetchMethodName: "cityDataPreLoader"
+    }
+    resource function get timezone(graphql:Context ctx) returns string|error? {
+        dataloader:DataLoader cityDataLoader = ctx.getDataLoader("cityDataLoader");
+        CityDataResultsItem cityData = check cityDataLoader.get([self.city, self.country]);
         return cityData.timezone;
     }
 
@@ -129,11 +198,7 @@ distinct service class PlaceWithFreeEntrance {
             select new (reviewData.id);
     }
 
-    resource function get rating() returns decimal? {
-        return from ReviewData {placeId, rating} in reviews
-            where placeId == self.id
-            collect avg(rating);
-    }
+    resource function get rating() returns decimal? => self.getRating();
 }
 
 distinct service class PlaceWithEntranceFee {
@@ -154,21 +219,42 @@ distinct service class PlaceWithEntranceFee {
         self.fee = placeData.entryFee;
     }
 
+    function getName() returns string => self.name;
+    
+    function getRating() returns decimal? {
+        return from ReviewData {placeId, rating} in reviews
+            where placeId == self.id
+            collect avg(rating);
+    }
+
     resource function get id() returns @graphql:ID int => self.id;
 
-    resource function get name() returns string => self.name;
+    resource function get name() returns string => self.getName();
 
     resource function get city() returns string => self.city;
 
     resource function get country() returns string => self.country;
 
-    resource function get population() returns int|error? {
-        CityDataResultsItem cityData = check getCityData(self.city, self.country);
+    isolated function cityDataPreLoader(graphql:Context ctx) {
+        dataloader:DataLoader bookLoader = ctx.getDataLoader("cityDataLoader");
+        bookLoader.add([self.city, self.country]);
+    }
+
+    @graphql:ResourceConfig {
+        prefetchMethodName: "cityDataPreLoader"
+    }
+    resource function get population(graphql:Context ctx) returns int|error? {
+        dataloader:DataLoader cityDataLoader = ctx.getDataLoader("cityDataLoader");
+        CityDataResultsItem cityData = check cityDataLoader.get([self.city, self.country]);
         return cityData.population;
     }
 
-    resource function get timezone() returns string|error? {
-        CityDataResultsItem cityData = check getCityData(self.city, self.country);
+    @graphql:ResourceConfig {
+        prefetchMethodName: "cityDataPreLoader"
+    }
+    resource function get timezone(graphql:Context ctx) returns string|error? {
+        dataloader:DataLoader cityDataLoader = ctx.getDataLoader("cityDataLoader");
+        CityDataResultsItem cityData = check cityDataLoader.get([self.city, self.country]);
         return cityData.timezone;
     }
 
@@ -178,11 +264,7 @@ distinct service class PlaceWithEntranceFee {
             select new (reviewData.id);
     }
 
-    resource function get rating() returns decimal? {
-        return from ReviewData {placeId, rating} in reviews
-            where placeId == self.id
-            collect avg(rating);
-    }
+    resource function get rating() returns decimal? => self.getRating();
 
     resource function get fee() returns decimal => self.fee;
 }
@@ -243,9 +325,71 @@ type ReviewInput record {|
     int authorId;
 |};
 
+type PlaceInput record {|
+    string name;
+    string city;
+    string country;
+    decimal entryFee;
+|};
+
 function getPlace(int placeId) returns Place {
     decimal entryFee = places.get(placeId).entryFee;
     return entryFee == 0d ?
         new PlaceWithFreeEntrance(placeId) :
         new PlaceWithEntranceFee(placeId);
+}
+
+isolated function cityDataLoaderFunction(readonly & anydata[] ids) returns CityDataResultsItem[]|error {
+    [string, string][] cities = check ids.ensureType();
+    return from [string, string] [city, country] in cities
+        select check getCityData(city, country);
+}
+
+isolated function contextInit(http:RequestContext requestContext, http:Request request) returns graphql:Context|error {
+    graphql:Context ctx = new;
+
+    string|http:HeaderNotFoundError userId = request.getHeader(USER_ID);
+    ctx.set(USER_ID, userId is http:HeaderNotFoundError ? () : check int:fromString(userId));
+    ctx.registerDataLoader("cityDataLoader", new dataloader:DefaultDataLoader(cityDataLoaderFunction));
+    return ctx;
+}
+
+readonly service class AuthInterceptor {
+    *graphql:Interceptor;
+
+    isolated remote function execute(graphql:Context context, graphql:Field 'field) returns anydata|error {
+        check validateAdminRole(context);
+        return context.resolve('field);
+    }
+}
+
+// Mock function for role validation.
+isolated function validateAdminRole(graphql:Context context) returns error? {
+    int|error userId = context.get(USER_ID).ensureType();
+    if userId is int && userId is 5002|5003 {
+        return ();
+    }
+    return error("Forbidden");
+}
+
+function getFilteredPlaces(string? filterCity, string? filterCountry) returns Place[] {
+    if filterCity is string && filterCountry is string {
+        return from PlaceData {id, city, country} in places
+            where city == filterCity && country == filterCountry
+            select getPlace(id);
+    }
+
+    if filterCity is string {
+        return from PlaceData {id, city} in places
+            where city == filterCity
+            select getPlace(id);
+    }
+
+    if filterCountry is string {
+        return from PlaceData {id, country} in places
+            where country == filterCountry
+            select getPlace(id);
+    }
+
+    return from PlaceData {id} in places select getPlace(id);
 }
