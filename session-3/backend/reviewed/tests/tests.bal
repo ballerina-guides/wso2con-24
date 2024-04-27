@@ -3,9 +3,10 @@ import ballerina/http;
 import ballerina/test;
 
 final graphql:Client cl = check new ("https://localhost:9000/reviewed",
-                                    secureSocket = {
-                                        cert: "../resources/certs/public.crt"
-                                    });
+    secureSocket = {
+        cert: "../resources/certs/public.crt"
+    }
+);
 
 @test:Mock {
     functionName: "getGeoClient"
@@ -23,14 +24,9 @@ function testRetrievingBasicPlaceData() returns error? {
         }
     }`);
 
-    BasicPlaceData[] expected = from PlaceData {id, name, city, country} in places 
-                                    order by name
-                                    select {
-                                        id,
-                                        name,
-                                        city,
-                                        country
-                                    };
+    BasicPlaceData[] expected = check from BasicPlaceData cityData in db->/places(BasicPlaceData)
+                                    order by cityData.name
+                                    select cityData;
     test:assertEquals(actual, {"data": {"places": expected}});
 }
 
@@ -78,15 +74,12 @@ function testRetrievingPlaceDataWithCityData() returns error? {
         }
     }`, {"placeId": 8001});
 
-    PlaceData placeData = places.get(8001);
+    BasicPlaceData placeData = check db->/places/[8001]();
 
     test:assertEquals(payload, {
                                    "data": {
                                        "place": {
-                                           "id": placeData.id,
-                                           "name": placeData.name,
-                                           "city": placeData.city,
-                                           "country": placeData.country,
+                                           ...placeData,
                                            "population": 450000,
                                            "timezone": "America/New_York"
                                        }

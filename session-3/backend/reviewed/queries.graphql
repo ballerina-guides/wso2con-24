@@ -1,0 +1,77 @@
+query QueryPlacesSummmary {
+	places {
+	  id
+    name
+    city
+    country
+    rating
+	}
+}
+
+query QueryPlacesSummmarySortByRating {
+	places(sortByRating: true) {
+	  id
+    name
+    city
+    country
+    rating
+	}
+}
+
+query QueryPlacesByCity($city: String!) {
+	places(city: $city) {
+	  id
+    name
+    city
+    country
+	}
+}
+
+query QueryPlacesByCountry($country: String!) {
+	places(country: $country) {
+	  id
+    name
+    city
+    country
+	}
+}
+
+query QueryPlacesByCityAndCountry {
+	places(country: "Sri Lanka", city: "Colombo") {
+	  id
+    name
+    city
+    country
+	}
+}
+
+query QueryPlacesWithReviews {
+  places {
+    id
+    name
+    city
+    country
+    population
+    timezone
+    reviews {
+      id
+      author {
+        username
+      }
+      content
+      rating
+    }
+  }
+}
+
+mutation AddReview {
+  addReview(reviewInput: {authorId: 5003, placeId: 8000, content:"Meh", rating: 2}) {
+    content
+  }
+}
+
+mutation AddPlace {
+  addPlace(placeInput: {name: "Auxa", city: "Miami", country: "United States", entryFee: 5}) {
+    id
+  }
+}
