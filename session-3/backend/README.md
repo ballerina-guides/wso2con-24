@@ -33,3 +33,16 @@ Reviewed! let's you
         - path - string `/geonames-all-cities-with-a-population-500/records?refine=name:${
             city}&refine=country:${country}` 
 
+#### Level 1 - Record as output type
+
+- Branch - https://github.com/ballerina-guides/wso2con-24/tree/session-3-level-1
+
+- Consists of the GraphQL service implementation to retrieve `places` with additional city information, with records as output object types.
+
+- But records, may not always be ideal if additional work is done to resolve fields, since it will be unnecessary if such a field is not requested. Similarly, records aren't ideal when there are relationships between objects and each object needs to be accessible via the other (e.g., review via place and place via review).
+
+- For level 2,
+
+    i. we will change record output types to output object types
+
+    ii. introduce a query that accepts arguments (`place` to retrieve place data for a given place ID)
