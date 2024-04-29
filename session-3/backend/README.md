@@ -18,10 +18,18 @@ Reviewed! let's you
 
 - Branch - https://github.com/ballerina-guides/wso2con-24/tree/session-3-level-0
 
-- Consists of in-memory data to get started with the GraphQL implementation. Use this to implement subsequent levels.
+- Consists of in-memory data to get started with the GraphQL implementation.
 
 - Three main entities: Place, Author, and Review
 
     ![Entity relationships](./resources/er-diagram.jpeg)
 
+- Use this to implement level 1.
+
+    i. return all places with data in the places table - id, name, city, country, and entryFee
+
+    ii. incorporate population and time zone information from https://public.opendatasoft.com/explore/dataset/geonames-all-cities-with-a-population-500/api/?disjunctive.country 
+        - URL - https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets
+        - path - string `/geonames-all-cities-with-a-population-500/records?refine=name:${
+            city}&refine=country:${country}` 
 
