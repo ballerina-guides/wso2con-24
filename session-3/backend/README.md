@@ -69,4 +69,12 @@ Reviewed! let's you
 
 - As the next step (level 4), let's add a mutation operation, to add a new review.
 
+#### Level 4 - Introduce a mutation operation to add a review
 
+- Branch - https://github.com/ballerina-guides/wso2con-24/tree/session-3-level-4
+
+- Introduces a mutation operation, which is the GraphQL way of performing an update.
+
+- Also introduces records as GraphQL input object types to accept structured input.
+
+- Now that we have updates, next (level 5), let's introduce a subscription operation, the GraphQL way for real-time, continuous updates. Let's introduce a subscription for reviews for a particular place.
