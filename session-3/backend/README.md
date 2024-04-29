@@ -39,10 +39,4 @@ Reviewed! let's you
 
 - Consists of the GraphQL service implementation to retrieve `places` with additional city information, with records as output object types.
 
-- But records, may not always be ideal if additional work is done to resolve fields, since it will be unnecessary if such a field is not requested. Similarly, records aren't ideal when there are relationships between objects and each object needs to be accessible via the other (e.g., review via place and place via review).
-
-- For level 2,
-
-    i. we will change record output types to output object types
-
-    ii. introduce a query that accepts arguments (`place` to retrieve place data for a given place ID)
+- But records, may not always be ideal if additional work is done to resolve fields, since it will be unnecessary if such a field is not requested. Similarly, records aren't ideal when there are relationships between objects and each object needs to be accessible via the other (e.g., review via place and place via review). For level 2, we will change record output type to an object output type.
