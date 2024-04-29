@@ -59,3 +59,14 @@ Reviewed! let's you
 
     ii. introduce a query that accepts arguments (`place` to retrieve place data for a given place ID)
 
+#### Level 3 - Introduce object types with relationships and queries with arguments
+
+- Branch - https://github.com/ballerina-guides/wso2con-24/tree/session-3-level-3
+
+- Consists of objects for Review and Author and introduces the relationships.
+
+- Also introduces the `place` query that accepts the place ID as an argument and to expose place information relevant to the place with the given ID. 
+
+- As the next step (level 4), let's add a mutation operation, to add a new review.
+
+
