@@ -9,7 +9,6 @@ import xlibb/pubsub;
 
 const USER_ID = "userId";
 
-configurable int port = 9000;
 configurable boolean graphiqlEnabled = false;
 configurable boolean introspection = false;
 configurable int maxQueryDepth = 15;
@@ -32,20 +31,18 @@ final db:Client db = check new;
 
 final pubsub:PubSub subscriptions = new;
 
-listener graphql:Listener ln = new (check new http:Listener(port, 
-        httpVersion = http:HTTP_1_1,
+listener graphql:Listener ln = new (9000,
         secureSocket = {
             key: {
                 certFile: "../resources/certs/public.crt",
                 keyFile: "../resources/certs/private.key"
             }
-        }));
+        });
 
 @graphql:ServiceConfig {
     graphiql: {
         enabled: graphiqlEnabled
     },
-    cacheConfig: {},
     introspection,
     maxQueryDepth,
     contextInit,

@@ -142,3 +142,43 @@ Reviewed! let's you
         - See [code coverage and reporting](https://ballerina.io/learn/test-ballerina-code/code-coverage-and-reporting/).
 
 - Now that we are done with the core implementation, let's take it to the next level (level 8), introducing features such as data loaders (for batching and caching) and authorization and integrating data persistence.
+
+#### Level 8 - A complete backend implementation
+
+- Branch - https://github.com/ballerina-guides/wso2con-24/tree/session-3-level-8
+
+Now that we have the core implementation done, we can work on incorporating a few advanced concepts and features.
+
+- Filtering and sorting - the `places` query has been updated to allow filtering by city and/or country and sorting by name or rating. These are defaultable parameters, making the arguments optional in the actual queries.
+
+- Maximum query depth - introduced in the service annotation, this restricts the depth of the query to avoid unnecessary processing for abnormal/malicious queries.
+
+- Data loaders - Ballerina supports data loaders that allow avoiding the GraphQL N + 1 problem via batching and caching. In this version, we've only introduced the data loader for the city data retrieval calls, but we can introduce data loaders for database access too. Also see [GraphQL data loader](https://ballerina.io/learn/by-example/graphql-dataloader/).
+
+- Enabling SSL - set the relevant `secureSocket` configuration when creating the listener. Also see [GraphQL service security](https://ballerina.io/learn/by-example/#graphql-service-security).
+
+- Field-level authorization - a simple (hard-coded) user ID-based authorization has been introduced to the `addPlace` mutation. The user ID from a request header is set to [the GraphQL context](https://ballerina.io/learn/by-example/graphql-context/) which is then accessed at field-level via a [field interceptor](https://ballerina.io/learn/by-example/graphql-field-interceptors/) to check if the user is authorized to add a place.
+
+- Persistence layer - [The Ballerina persist feature](https://ballerina.io/learn/bal-persist-overview/) has been used as an interface to the underlying database.
+
+    i. Use [script.sql](./reviewed/modules/db/script.sql) to create the database tables and populate the initial data
+
+    ii. Add the database configuration similar to the following in a file named `Config.toml` in the working directory, to provide values for the configurable variables to establish the database connection.
+
+    ```toml
+    [reviewed.db]
+    host = "localhost"
+    port = 3306
+    user = "user"
+    password = "password"
+    database = "reviewed_db"
+    ```
+- Note: if you want to enable GraphiQL and/or introspection, add the following also in the config file.
+
+    ```toml
+    graphiqlEnabled = true
+    introspection = true
+    ```
+
+  For demonstration, to reset the database tables to the initial state on start up (as when the script was executed), you can set `reset` to `true`.  
+
