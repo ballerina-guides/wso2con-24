@@ -230,6 +230,7 @@ const PlaceDetails = ({ place, subscribeToNewReviews }) => {
                 </Grid>
 
                 <Typography
+                    marginTop="2rem"
                     textAlign="center"
                     component="h4"
                     variant="h4">
