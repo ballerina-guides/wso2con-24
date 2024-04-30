@@ -141,4 +141,4 @@ Reviewed! let's you
 
         - See [code coverage and reporting](https://ballerina.io/learn/test-ballerina-code/code-coverage-and-reporting/).
 
-- Now that we are done with the core implementation, let's take it to the next level (level 8), introducing features such as data loaders (for batching and caching) and authorization.
+- Now that we are done with the core implementation, let's take it to the next level (level 8), introducing features such as data loaders (for batching and caching) and authorization and integrating data persistence.
