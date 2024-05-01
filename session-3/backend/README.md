@@ -266,3 +266,14 @@ Now that we have the core implementation done, we can work on incorporating a fe
         ```
 
     Note: the quality of the generated connector would depend on how well-defined the OpenAPI specification is, but a generated client is generally at least a good starting point for a connector implementation.
+
+- In case you need to make a package visible to only those belonging to a particular organization, you can do so by setting the visibility field in the `package` section of the Ballerina.toml file.
+
+    ```toml
+    [package]
+    org = "maryam"
+    name = "reviewed"
+    version = "0.1.0"
+    distribution = "2201.9.0"
+    visibility = "private"
+    ```
