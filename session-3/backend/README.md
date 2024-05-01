@@ -231,39 +231,39 @@ Now that we have the core implementation done, we can work on incorporating a fe
 
     iv. Test the package locally by pushing it to the local repository.
 
-        ```bash
-        bal push --repository local
-        ```
+    ```bash
+    bal push --repository local
+    ```
 
     v. Update the `reviewed` project to use this connector by adding the dependency in the Ballerina.toml file. Then update the service to use the connector instead of directly using the HTTP client. Note that the tests will have to be updated too.
 
-        ```toml
-        [[dependency]]
-        org = "maryamzi"
-        name = "city_data_client"
-        version = "0.1.0"
-        repository = "local"
-        ```
+    ```toml
+    [[dependency]]
+    org = "maryamzi"
+    name = "city_data_client"
+    version = "0.1.0"
+    repository = "local"
+    ```
 
     vi. Once the package is ready, you can push it to Ballerina Central and get rid of the local dependency from the Ballerina.toml file. Note that you should be a member of the organization to which you are going to push the package to. An [access token](https://ballerina.io/learn/publish-packages-to-ballerina-central/#obtain-an-access-token) also has to be configured.
 
-        ```bash
-        bal push
-        ```
+    ```bash
+    bal push
+    ```
 
 - Instead of developing the connector manually, if there is an OpenAPI specification for the service, you can use that to generate a client implementation. Navigate to the [connector/generated](./connector/generated) module, which contains a [sample OpenAPI specification](./connector/generated/api_explore_v2_1_catalog_datasets_openapi.yaml) and follow the following steps to generate the client. Let's use a different package name to differentiate between this and the previous client.
 
     i. Create a package to which the generated code will be added.
 
-        ```bash
-        $ bal new city-data
-        ```
+    ```bash
+    $ bal new city-data
+    ```
 
     ii. Use the `bal openapi` command to generate the client implementation.
 
-        ```bash
-        $ bal openapi -i api_explore_v2_1_catalog_datasets_openapi.yaml -o city-data --mode client
-        ```
+    ```bash
+    $ bal openapi -i api_explore_v2_1_catalog_datasets_openapi.yaml -o city-data --mode client
+    ```
 
     Note: the quality of the generated connector would depend on how well-defined the OpenAPI specification is, but a generated client is generally at least a good starting point for a connector implementation.
 
