@@ -182,6 +182,16 @@ Now that we have the core implementation done, we can work on incorporating a fe
 
 - Constraint validation - [GraphQL input constraint validation](https://ballerina.io/learn/by-example/graphql-input-constraint-validation/) has been introduced using the `ballerina/constraint` module to validate that the rating is a value between 1 and 5, inclusive.
 
+- Schema generation - Now that the service implementation is done, we can generate the GraphQL schema using the `bal graphql` command.
+
+    ```bash
+    reviewed$ bal graphql -i service.bal -o schema/
+    SDL Schema(s) generated successfully and copied to :
+    -- schema_reviewed.graphql
+    ```
+
+    This will generate the schema at the specified [output path](./reviewed/schema/schema_reviewed.graphql).
+
 - Note: if you want to enable GraphiQL and/or introspection, add the following also in the config file.
 
     ```toml
