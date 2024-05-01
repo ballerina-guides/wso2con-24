@@ -149,19 +149,15 @@ Reviewed! let's you
 
 Now that we have the core implementation done, we can work on incorporating a few advanced concepts and features.
 
-- Filtering and sorting - the `places` query has been updated to allow filtering by city and/or country and sorting by name or rating. These are defaultable parameters, making the arguments optional in the actual queries.
+- Note that, in this version, we've switched to use data from a database instead of the in-memory tables. The [Ballerina persist feature](https://ballerina.io/learn/bal-persist-overview/) has been used as an interface to the underlying database.
 
-- Maximum query depth - introduced in the service annotation, this restricts the depth of the query to avoid unnecessary processing for abnormal/malicious queries.
+    To run this locally, first
 
-- Data loaders - Ballerina supports data loaders that allow avoiding the GraphQL N + 1 problem via batching and caching. In this version, we've only introduced the data loader for the city data retrieval calls, but we can introduce data loaders for database access too. Also see [GraphQL data loader](https://ballerina.io/learn/by-example/graphql-dataloader/).
+    i. Use [script.sql](./reviewed/modules/db/script.sql) to create the database tables and populate the initial data.
 
-- Enabling SSL - set the relevant `secureSocket` configuration when creating the listener. Also see [GraphQL service security](https://ballerina.io/learn/by-example/#graphql-service-security).
-
-- Field-level authorization - a simple (hard-coded) user ID-based authorization has been introduced to the `addPlace` mutation. The user ID from a request header is set to [the GraphQL context](https://ballerina.io/learn/by-example/graphql-context/) which is then accessed at field-level via a [field interceptor](https://ballerina.io/learn/by-example/graphql-field-interceptors/) to check if the user is authorized to add a place.
-
-- Persistence layer - [The Ballerina persist feature](https://ballerina.io/learn/bal-persist-overview/) has been used as an interface to the underlying database.
-
-    i. Use [script.sql](./reviewed/modules/db/script.sql) to create the database tables and populate the initial data
+    ```bash
+    $ mysql -u <USERNAME> -p < <PATH_TO_SCRIPT>/script.sql
+    ```
 
     ii. Add the database configuration similar to the following in a file named `Config.toml` in the working directory, to provide values for the configurable variables to establish the database connection.
 
@@ -173,6 +169,19 @@ Now that we have the core implementation done, we can work on incorporating a fe
     password = "password"
     database = "reviewed_db"
     ```
+
+- Filtering and sorting - the `places` query has been updated to allow filtering by city and/or country and sorting by name or rating. These are defaultable parameters, making the arguments optional in the actual queries.
+
+- Maximum query depth - introduced in the service annotation, this restricts the depth of the query to avoid unnecessary processing for abnormal/malicious queries.
+
+- Data loaders - Ballerina supports data loaders that allow avoiding the GraphQL N + 1 problem via batching and caching. In this version, we've only introduced the data loader for the city data retrieval calls, but we can introduce data loaders for database access too. Also see [GraphQL data loader](https://ballerina.io/learn/by-example/graphql-dataloader/).
+
+- Enabling SSL - set the relevant `secureSocket` configuration when creating the listener. Also see [GraphQL service security](https://ballerina.io/learn/by-example/#graphql-service-security).
+
+- Field-level authorization - a simple (hard-coded) user ID-based authorization has been introduced to the `addPlace` mutation. The user ID from a request header is set to [the GraphQL context](https://ballerina.io/learn/by-example/graphql-context/) which is then accessed at field-level via a [field interceptor](https://ballerina.io/learn/by-example/graphql-field-interceptors/) to check if the user is authorized to add a place.
+
+- Constraint validation - [GraphQL input constraint validation](https://ballerina.io/learn/by-example/graphql-input-constraint-validation/) has been introduced using the `ballerina/constraint` module to validate that the rating is a value between 1 and 5, inclusive.
+
 - Note: if you want to enable GraphiQL and/or introspection, add the following also in the config file.
 
     ```toml

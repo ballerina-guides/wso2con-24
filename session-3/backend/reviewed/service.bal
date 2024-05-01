@@ -1,5 +1,6 @@
 import reviewed.db;
 
+import ballerina/constraint;
 import ballerina/graphql;
 import ballerina/graphql.dataloader;
 import ballerina/http;
@@ -331,6 +332,10 @@ service class Author {
 }
 
 type ReviewInput record {|
+    @constraint:Int {
+        minValue: 1,
+        maxValue: 5
+    }
     int rating;
     string content;
     int placeId;
