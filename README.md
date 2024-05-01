@@ -38,5 +38,3 @@ Additionally, you could install [MySQL](https://www.mysql.com/), [Jaeger](https:
 2. [Stackoverflow](https://stackoverflow.com/questions/tagged/ballerina)
 3. [X](https://twitter.com/ballerinalang)
 4.[LinkedIn](https://github.com/ballerina-platform/ballerina-lang)
-
-
