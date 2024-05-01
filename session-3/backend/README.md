@@ -182,3 +182,10 @@ Now that we have the core implementation done, we can work on incorporating a fe
 
   For demonstration, to reset the database tables to the initial state on start up (as when the script was executed), you can set `reset` to `true`.  
 
+- For an overview of these and other Ballerina GraphQL features, see Ballerina GraphQL examples:
+
+    - [GraphQL service](https://ballerina.io/learn/by-example/#graphql-service)
+    - [GraphQL service advanced](https://ballerina.io/learn/by-example/#--graphql-service-advanced)
+    - [GraphQL service security](https://ballerina.io/learn/by-example/#graphql-service-security)
+    - [GraphQL client](https://ballerina.io/learn/by-example/#graphql-client)
+    - [GraphQL client security](https://ballerina.io/learn/by-example/#graphql-client-security)
