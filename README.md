@@ -33,7 +33,7 @@ Additionally, you could install [MySQL](https://www.mysql.com/), [Jaeger](https:
 5. [Ballerina certification](https://wso2.com/training/certification/certified-ballerina-developer-swan-lake/)
 
 
-## Join Ballerina Community
+## Join the Ballerina Community
 
 1. [Discord](https://discord.gg/ballerinalang)
 2. [Stackoverflow](https://stackoverflow.com/questions/tagged/ballerina)
