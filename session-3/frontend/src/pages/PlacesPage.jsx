@@ -284,7 +284,11 @@ const PlaceCard = ({ place, selectedCity, selectedCountry, filterByCity, filterB
                         onClick={() => filterByCountry(country)}
                     />
                 </Stack>
-                {fee ? <Typography variant="p" color="secondary" fontWeight="bold">${fee}</Typography> : ""}
+                {fee ?
+                    <Typography variant="p" color="secondary">
+                        Fee: <Typography variant="span" fontWeight="bold">${fee}</Typography>
+                    </Typography> : ""
+                }
             </CardContent>
         </Card>
     )

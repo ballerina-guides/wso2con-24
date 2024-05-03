@@ -193,47 +193,52 @@ const PlaceDetails = ({ place, subscribeToNewReviews }) => {
 
                 <Divider sx={{ bgcolor: "primary.main", width: "100%" }} />
 
-                <Grid container>
-                    <Grid item xs={6}>
-                        <Typography variant="h5">
-                            Location: <Typography variant="span" component="span" color="primary">{city}, {country}</Typography>
-                        </Typography>
+                <Grid container justifyContent="center">
+                    <Grid item xs={6} display="flex" alignItems="center" gap="0.5rem" flexWrap="wrap">
+                        <Typography variant="p">Location:</Typography>
+                        <Typography variant="span" component="span" color="secondary" fontWeight="bold">{city}, {country}</Typography>
                     </Grid>
 
-                    <Grid item xs={6} display="flex" alignItems="center" gap="0.5rem">
-                        <Typography variant="h5">
+                    <Grid item xs={6} display="flex" alignItems="center" gap="0.5rem" flexWrap="wrap">
+                        <Typography variant="p">
                             Rating:
                         </Typography>
                         {rating !== null ?
                             <LikeCount count={Math.round(rating)} limit={LIKE_COUNT_LIMIT} /> :
-                            <Typography variant="span" component="span" color="primary">No ratings yet!</Typography>
+                            <Typography variant="span" component="span" color="secondary" fontWeight="bold">No ratings yet!</Typography>
                         }
                     </Grid>
 
-                    <Grid item xs={6}>
-                        <Typography variant="body1">
-                            Population: <Typography variant="span" component="span" color="primary">{population}</Typography>
+                    {fee ?
+                        <Grid item xs={12}>
+                            <Typography variant="p">
+                                Fee: <Typography variant="span" fontWeight="bold" color="secondary" fontWeight="bold">${fee}</Typography>
+                            </Typography>
+                        </Grid> : ""}
+
+                    <Grid item xs={12}>
+                        <Typography variant="h5" textAlign="center" margin="1rem 0" fontWeight="bold">
+                            More about {city}, {country}
                         </Typography>
                     </Grid>
 
-                    <Grid item xs={6}>
-                        <Typography variant="body1">
-                            Timezone: <Typography variant="span" component="span" color="primary">{timezone}</Typography>
-                        </Typography>
+                    <Grid item xs={6} display="flex" alignItems="center" gap="0.5rem" flexWrap="wrap">
+                        <Typography variant="p">Population:</Typography>
+                        <Typography variant="span" component="span" color="secondary" fontWeight="bold">{population}</Typography>
                     </Grid>
-                    {fee ?
-                        <Grid item xs={12} marginTop="1rem">
-                            <Typography variant="body1" color="secondary" fontWeight="bold">
-                                ${fee}
-                            </Typography>
-                        </Grid> : ""}
+
+                    <Grid item xs={6} display="flex" alignItems="center" gap="0.5rem" flexWrap="wrap">
+                        <Typography variant="p">Time zone:</Typography>
+                        <Typography variant="span" component="span" color="secondary" fontWeight="bold">{timezone}</Typography>
+                    </Grid>
                 </Grid>
 
                 <Typography
                     marginTop="2rem"
                     textAlign="center"
                     component="h4"
-                    variant="h4">
+                    variant="h4"
+                    fontWeight="bold">
                     Reviews
                 </Typography>
 
