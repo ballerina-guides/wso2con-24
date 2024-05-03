@@ -212,7 +212,7 @@ const PlaceDetails = ({ place, subscribeToNewReviews }) => {
                     {fee ?
                         <Grid item xs={12}>
                             <Typography variant="p">
-                                Fee: <Typography variant="span" fontWeight="bold" color="secondary" fontWeight="bold">${fee}</Typography>
+                                Fee: <Typography variant="span" fontWeight="bold" color="secondary">${fee}</Typography>
                             </Typography>
                         </Grid> : ""}
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is the frontend implementation for Reviewed!. It consists of a React application that works with a Ballerina GraphQL backend. It uses the Apollo Client on the frontend to connect to the GraphQL backend.
+This is the frontend implementation for `Reviewed!`. It consists of a React application that works with a Ballerina GraphQL backend. It uses the Apollo Client on the frontend to connect to the GraphQL backend.
 
 ## Get Started
 
